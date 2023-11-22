@@ -1,5 +1,5 @@
 CUDA_VISIBLE_DEVICES=0 \
-python update_main.py \
+python main.py \
 -cfg='./config.yaml' \
 -dataset='cybersecurity' \
 -batch_size=32 \
