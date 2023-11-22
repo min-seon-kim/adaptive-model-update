@@ -1,6 +1,0 @@
-MODEL:
-    EPOCH: 20
-    APPLY_TRANSFORM: True
-    DROPPATH: 0.0
-INDICATOR:
-    R: 100

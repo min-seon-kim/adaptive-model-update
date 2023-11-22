@@ -8,13 +8,14 @@ def predict_accuracy(ml_model, x_test):
     return acc_1[0], acc_2[0], acc_3[0], acc_4[0], acc_5[0]
 
 def predict_learning_time(data_size):
+    # Set the prediction time formula here
     T = (0.000003615*data_size + 0.0289)
     W = (0.00007*data_size + 0.887)
     F = (0.002865*data_size + 0.183)
     C = (0.002145*data_size + 1.64)
     return T, T+C, T+W+C, T+F+C, T+W+F+C
 
-def update_model_by_strategy(model, custom_tokenizer, evolving_event, base_model_wv, new_model_wv, chosen_strategy, batch_size):
+def update_model_by_strategy(model, custom_tokenizer, evolving_event, base_model_wv, new_model_wv, chosen_strategy, config):
     import numpy as np
     from copy import deepcopy
     import tensorflow as tf
@@ -40,9 +41,9 @@ def update_model_by_strategy(model, custom_tokenizer, evolving_event, base_model
         y_train = to_categorical(label_list)
         x_train, x_test, y_train, y_test = train_test_split(x_train, y_train, test_size=0.2, shuffle=True)
 
-        embedding_matrix = np.zeros((batch_size, 100))
+        embedding_matrix = np.zeros((config.embedding_size, 100))
         for word, i in custom_tokenizer.word_index.items():
-            if i == batch_size:
+            if i == config.embedding_size:
                 break
             if word in base_model_wv.vocab.keys():
                 embedding_matrix[i] = base_model_wv.word_vec(word)
@@ -54,7 +55,7 @@ def update_model_by_strategy(model, custom_tokenizer, evolving_event, base_model
             layer.trainable = False
         optimizer = tf.keras.optimizers.Adam(learning_rate=0.003)
         model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['acc'])
-        model.fit(x_train, y_train, validation_split=0.2, epochs=20, batch_size=32, verbose=0)
+        model.fit(x_train, y_train, validation_split=0.2, epochs=config.epochs, batch_size=config.batch_size, verbose=0)
         score = model.evaluate(x_test, y_test, verbose=0)
 
     elif chosen_strategy == 3:     
@@ -70,9 +71,9 @@ def update_model_by_strategy(model, custom_tokenizer, evolving_event, base_model
         kv = deepcopy(base_model_wv)
         kv.add(new_model_wv.index2word, vectorList, replace=True)
 
-        embedding_matrix = np.zeros((batch_size, 100))
+        embedding_matrix = np.zeros((config.embedding_size, 100))
         for word, i in custom_tokenizer.word_index.items():
-            if i == batch_size:
+            if i == config.embedding_size:
                 break
             if word in kv.vocab.keys():
                 embedding_matrix[i] = kv.word_vec(word)
@@ -84,7 +85,7 @@ def update_model_by_strategy(model, custom_tokenizer, evolving_event, base_model
             layer.trainable = False
         optimizer = tf.keras.optimizers.Adam(learning_rate=0.003)
         model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['acc'])
-        model.fit(x_train, y_train, validation_split=0.2, epochs=20, batch_size=32, verbose=0)
+        model.fit(x_train, y_train, validation_split=0.2, epochs=config.epochs, batch_size=config.batch_size, verbose=0)
         score = model.evaluate(x_test, y_test, verbose=0)
         
         kv.save("./w2v/update.wordvectors")
@@ -96,9 +97,9 @@ def update_model_by_strategy(model, custom_tokenizer, evolving_event, base_model
         y_train = to_categorical(label_list)
         x_train, x_test, y_train, y_test = train_test_split(x_train, y_train, test_size=0.2, shuffle=True)
 
-        embedding_matrix = np.zeros((batch_size, 100))
+        embedding_matrix = np.zeros((config.embedding_size, 100))
         for word, i in custom_tokenizer.word_index.items():
-            if i == batch_size:
+            if i == config.embedding_size:
                 break
             if word in base_model_wv.vocab.keys():
                 embedding_matrix[i] = base_model_wv.word_vec(word)
@@ -111,7 +112,7 @@ def update_model_by_strategy(model, custom_tokenizer, evolving_event, base_model
 
         optimizer = tf.keras.optimizers.Adam(learning_rate=0.003)
         model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['acc'])
-        model.fit(x_train, y_train, validation_split=0.2, epochs=20, batch_size=32, verbose=0)
+        model.fit(x_train, y_train, validation_split=0.2, epochs=config.epochs, batch_size=config.batch_size, verbose=0)
         score = model.evaluate(x_test, y_test, verbose=0)
 
         origin_keyword = deepcopy(list(custom_tokenizer.word_index.keys()))
@@ -129,9 +130,9 @@ def update_model_by_strategy(model, custom_tokenizer, evolving_event, base_model
         kv = deepcopy(base_model_wv)
         kv.add(new_model_wv.index2word, vectorList, replace=True)
 
-        embedding_matrix = np.zeros((batch_size, 100))
+        embedding_matrix = np.zeros((config.embedding_size, 100))
         for word, i in custom_tokenizer.word_index.items():
-            if i == batch_size:
+            if i == config.embedding_size:
                 break
             if word in kv.vocab.keys():
                 embedding_matrix[i] = kv.word_vec(word)
@@ -144,7 +145,7 @@ def update_model_by_strategy(model, custom_tokenizer, evolving_event, base_model
 
         optimizer = tf.keras.optimizers.Adam(learning_rate=0.003)
         model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['acc'])
-        model.fit(x_train, y_train, validation_split=0.2, epochs=20, batch_size=32, verbose=0)
+        model.fit(x_train, y_train, validation_split=0.2, epochs=config.epochs, batch_size=config.batch_size, verbose=0)
         score = model.evaluate(x_test, y_test, verbose=0)
         
         kv.save("./w2v/update.wordvectors")

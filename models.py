@@ -67,7 +67,7 @@ def get_lstm_model(embedding_layer):
     return model
            
 
-def get_transformer():
+def get_transformer(embedding_matrix):
     num_heads = 2  # Number of attention heads
     ff_dim = 32  # Hidden layer size in feed forward network inside transformer
     maxlen = 200  # Only consider the first 200 words of each sample

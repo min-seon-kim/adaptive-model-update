@@ -30,10 +30,9 @@ To pre-train the model, run the following script using command line:
 sh run_pretrain_offline.sh
 ```
 
-To online adapt the model, run the following script using command line:
+To adapt the model online, run the following script using command line:
 
 ```shell
 sh run_update_online.sh
 ```
 
-> Note: if you have only 1 GPU, change device number to `CUDA_VISIBLE_DEVICES=0` would run the evaluation on single GPU.

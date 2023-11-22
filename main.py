@@ -28,7 +28,10 @@ def get_arguments():
     parser = argparse.ArgumentParser('ConvNeXt')
     parser.add_argument('-cfg', type=str, default=None)
     parser.add_argument('-dataset', type=str, default=None)
+    parser.add_argument('-event_size', type=int, default=None)
     parser.add_argument('-batch_size', type=int, default=None)
+    parser.add_argument('-keyword_size', type=int, default=None)
+    parser.add_argument('-epochs', type=int, default=None)
     parser.add_argument('-pretrained', type=str, default=None)
     parser.add_argument('-model', type=str, default=None)
     parser.add_argument('-model_path', type=str, default=None)
@@ -37,13 +40,15 @@ def get_arguments():
     parser.add_argument('-output_path', type=str, default=None)
     parser.add_argument('-token_path', type=str, default=None)
     parser.add_argument('-ml_path', type=str, default=None)
+    parser.add_argument('-update', type=str, default=None)
+    parser.add_argument('-pretrain', type=str, default=None)
     arguments = parser.parse_args()
     return arguments
 
 
-def pretrain(config, args):    
+def pretrain(config):   
     source_data = pd.read_csv(os.path.join(config.dataset, f"{config.dataset}_source.csv"))
-    source_event = source_data[:config.batch_size/2]
+    source_event = source_data[:config.event_size/2]
 
     stop = stopwords.words('english')
     source_event['text'] = source_event['text'].apply(lambda x:' '.join(x.lower() for x in x.split()))
@@ -54,11 +59,11 @@ def pretrain(config, args):
     source_event['text'] = source_event['text'].map(lambda x: simple_preprocess(x.lower(),deacc=True, max_len=100))
 
     # Train Word Embedding
-    base_model, base_model_wv = train_w2v_model(source_event['text'][:config.batch_size/2])
+    base_model, base_model_wv = train_w2v_model(source_event['text'][:config.event_size/2])
 
     # Train Tokenizer
     tokenizer = Tokenizer(num_words=1000)
-    tokenizer.fit_on_texts(source_event['text'][:config.batch_size/2])
+    tokenizer.fit_on_texts(source_event['text'][:config.event_size/2])
     train_sequences = tokenizer.texts_to_sequences(source_event['text'])
 
     x_data = pad_sequences(train_sequences, maxlen=200, padding='post')
@@ -97,11 +102,11 @@ def pretrain(config, args):
         model.compile(loss='binary_crossentropy',optimizer=optimizer,metrics=['acc'])
 
     x_train, x_valid, y_train, y_valid = train_test_split(x_data, y_data, test_size=0.2, shuffle=True)
-    model.fit(x_train, y_train, validation_data=(x_valid, y_valid), epochs=args['MODEL']['EPOCH'], batch_size=args['model']['batch_size'])
+    model.fit(x_train, y_train, validation_data=(x_valid, y_valid), epochs=config.epochs, batch_size=config.batch_size)
     model.save(os.path.join(config.model_path, f"{config.dataset}_{config.model}_pretrain"))
     return
 
-def update(config, args):
+def update(config):
     target_data = pd.read_csv(os.path.join(config.dataset, f"{config.dataset}_target.csv"))
     target_data_pos = target_data.loc[target_data['label']==1][['text', 'label']]
     target_data_neg = target_data.loc[target_data['label']==0][['text', 'label']]
@@ -124,14 +129,6 @@ def update(config, args):
         evolving_event['text'] = evolving_event['text'].apply(lambda x:' '.join(x for x in x.split() if not x in stop))
         evolving_event['text'] = evolving_event['text'].apply(lambda x: " ".join([Word(word).lemmatize() for word in x.split()]))
         evolving_event['text'] = evolving_event['text'].map(lambda x: simple_preprocess(x.lower(),deacc=True, max_len=100))
-        
-        # filtered_word = df['text'][:2000]
-        # text_list = df['text']
-        # label_list = evolving_event['label']
-
-        train_sequences = tokenizer.texts_to_sequences(evolving_event['text'])
-        px_test = pad_sequences(train_sequences, maxlen=200, padding='post')
-        py_test = to_categorical(evolving_event['label'])
 
         previous_word_counts = deepcopy(tokenizer.word_counts)
         previous_word_docs = deepcopy(tokenizer.word_docs)
@@ -139,15 +136,15 @@ def update(config, args):
         from custom_tokenizer import Tokenizer
         custom_tokenizer = Tokenizer(num_words=1000, previous_word_counts=previous_word_counts, \
                                 previous_word_docs=previous_word_docs, vocabulary=[]) 
-        custom_tokenizer.fit_on_texts(evolving_event['text'][:config.batch_size/2])
+        custom_tokenizer.fit_on_texts(evolving_event['text'][:config.event_size/2])
 
-        _, new_model_wv = train_w2v_model(evolving_event['text'][:config.batch_size/2])
+        _, new_model_wv = train_w2v_model(evolving_event['text'][:config.event_size/2])
         
         word_dict = sorted(tokenizer.word_counts.items(), key=lambda x: x[1], reverse=True)
-        keywordset = [word_dict[i][0] for i in range(args['INDICATOR']['K'])] # top 100 keywords
+        keywordset = [word_dict[i][0] for i in range(config.keyword_size)] # top 100 keywords
 
         # Calculate frequency indicator
-        cnt_fre = [sum(evolving_event['text'][:config.batch_size/2].apply(lambda x: x.count(i))) for i in keywordset]
+        cnt_fre = [sum(evolving_event['text'][:config.event_size/2].apply(lambda x: x.count(i))) for i in keywordset]
         FREQUENCY_INDICATOR = np.mean(cnt_fre)
         # Calculate semantic indicator
         SEMANTIC_INDICATOR = calculate_n_similarity(base_model=base_model_wv, new_model=new_model_wv, represent_set=represent_set)
@@ -172,7 +169,7 @@ def update(config, args):
 
         # Get predicted time
         t_noupdate = 0
-        t1, t2, t3, t4, t5 = predict_learning_time(data_size=config.batch_size)
+        t1, t2, t3, t4, t5 = predict_learning_time(data_size=config.event_size)
 
         acc0 = (a_noupdate-min(a1,a2,a3,a4,a5))/(max(a1,a2,a3,a4,a5)-min(a1,a2,a3,a4,a5))
         acc1 = (a1-min(a1,a2,a3,a4,a5))/(max(a1,a2,a3,a4,a5)-min(a1,a2,a3,a4,a5))
@@ -193,7 +190,7 @@ def update(config, args):
 
         # Update model by chosen strategy
         if chosen_strategy != 0:
-            model, tokenizer, base_model_wv, origin_keyword, score = update_model_by_strategy(model, custom_tokenizer, evolving_event, base_model_wv, new_model_wv, chosen_strategy, config.batch_size)
+            model, tokenizer, base_model_wv, origin_keyword, score = update_model_by_strategy(model, custom_tokenizer, evolving_event, base_model_wv, new_model_wv, chosen_strategy, config)
         
         with open(config.output_path, 'w') as writer:
             writer.write(f"Time Window {i}: Classification accuracy is {score[1]}\n")
@@ -202,13 +199,10 @@ def update(config, args):
 
 
 if __name__ == "__main__":
-    import yaml
     config = get_arguments()
-    with open(config.cfg, 'r') as file:
-        args = yaml.safe_load(file)
     
     if config.pretrain:
-        pretrain(config, args)
+        pretrain(config)
 
     if config.update:
-        update(config, args)
+        update(config)
