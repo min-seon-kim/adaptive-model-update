@@ -22,7 +22,7 @@ ImageNet2012 dataset is used in the following file structure:
 - `disaster_source.csv`: You can download it from: [here](https://www.kaggle.com/competitions/nlp-getting-started/data)
 - `hotel_review.csv`: You can download it from: [here](https://www.yelp.com/dataset)
 
-## Usage
+## Implementation
 
 To pre-train the model, run the following script using command line:
 
