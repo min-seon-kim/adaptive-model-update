@@ -47,7 +47,7 @@ def get_arguments():
 
 
 def pretrain(config):   
-    source_data = pd.read_csv(os.path.join(config.dataset, f"{config.dataset}_source.csv"))
+    source_data = pd.read_csv(os.path.join("data", config.dataset, f"{config.dataset}_source.csv"))
     source_event = source_data[:config.event_size/2]
 
     stop = stopwords.words('english')
@@ -107,7 +107,7 @@ def pretrain(config):
     return
 
 def update(config):
-    target_data = pd.read_csv(os.path.join(config.dataset, f"{config.dataset}_target.csv"))
+    target_data = pd.read_csv(os.path.join("data", config.dataset, f"{config.dataset}_target.csv"))
     target_data_pos = target_data.loc[target_data['label']==1][['text', 'label']]
     target_data_neg = target_data.loc[target_data['label']==0][['text', 'label']]
     stop = stopwords.words('english')

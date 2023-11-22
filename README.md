@@ -5,7 +5,7 @@
 ImageNet2012 dataset is used in the following file structure:
 
 ```
-│imagenet/
+│adaptive-model-update/
 ├──data/
 │  ├── cybersecurity
 │  │   ├── cs_source.csv
