@@ -24,8 +24,6 @@ ImageNet2012 dataset is used in the following file structure:
 
 ## Implementation
 
-The model config file is located in config.yaml.
-
 To pre-train the model, run the following script using command line:
 
 ```shell
