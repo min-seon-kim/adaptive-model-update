@@ -1,4 +1,4 @@
-# Adaptive Online Learning for Streaming Text Classification under Distribution Shifts. ICDE 2024
+# Adaptive Online Learning for Streaming Text Classification under Distribution Shifts
 
 ## Data Preparation
 
