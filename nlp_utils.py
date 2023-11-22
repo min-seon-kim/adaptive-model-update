@@ -50,12 +50,12 @@ def get_tokens(sentence): # convert the stream of words into small tokens so tha
     return (tokens)
 
 
-def calculate_n_similarity(base_model, new_model, keyword_set):
+def calculate_n_similarity(base_model, new_model, represent_set):
     from numpy import dot, array
-    from gensim import utils, matutils
+    from gensim import matutils
 
     ws=[]
-    for word in keyword_set:
+    for word in represent_set:
         if word in new_model:
             ws.append(word)
 

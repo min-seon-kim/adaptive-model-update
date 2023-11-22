@@ -2,49 +2,8 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv1D, GlobalMaxPooling1D, Flatten, GRU
-from tensorflow.keras.layers import Dense, Embedding, Dropout, LSTM
+from tensorflow.keras.layers import *
     
-    
-class CNNModel(tf.keras.Model):
-    def __init__(self, embedding_layer):
-        super(CNNModel, self).__init__()
-        self.embedding_layer = embedding_layer
-        self.conv1d_1 = Conv1D(filters=16, kernel_size=3, activation='relu')
-        self.maxpooling1d = GlobalMaxPooling1D()
-        self.conv1d_2 = Conv1D(filters=16, kernel_size=3, activation='relu')
-        self.flatten = Flatten()
-        self.dense1 = Dense(100, activation='relu')
-        self.dense2 = Dense(2, activation='softmax')
-
-    def call(self, inputs):
-        x = self.embedding_layer(inputs)
-        x = self.conv1d_1(x)
-        x = self.maxpooling1d(x)
-        x = self.conv1d_2(x)
-        x = self.flatten(x)
-        x = self.dense1(x)
-        return self.dense2(x)
-           
-
-class LSTMModel(tf.keras.Model):
-    def __init__(self, embedding_layer):
-        super(LSTMModel, self).__init__()
-        self.embedding_layer = embedding_layer
-        self.lstm_layer = LSTM(32, return_sequences=True)
-        self.dropout_layer = Dropout(0.2)
-        self.flatten_layer = Flatten()
-        self.dense_layer1 = Dense(32, activation='sigmoid')
-        self.dense_layer2 = Dense(2, activation='softmax')
-
-    def call(self, inputs):
-        x = self.embedding_layer(inputs)
-        x = self.lstm_layer(x)
-        x = self.dropout_layer(x)
-        x = self.flatten_layer(x)
-        x = self.dense_layer1(x)
-        return self.dense_layer2(x)
-
 
 class TransformerBlock(layers.Layer):
     def __init__(self, embed_dim, num_heads, ff_dim, rate=0.1):
@@ -83,3 +42,46 @@ class TokenAndPositionEmbedding(layers.Layer):
         positions = self.pos_emb(positions)
         x = self.token_emb(x)
         return x + positions
+
+
+def get_cnn_model(embedding_layer):
+    model = Sequential()
+    model.add(embedding_layer)
+    model.add(Conv1D(filters=16, kernel_size=3, activation='relu'))
+    model.add(MaxPooling1D(pool_size=2))
+    model.add(Conv1D(filters=16, kernel_size=3, activation='relu'))
+    model.add(Flatten())
+    model.add(Dense(100, activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
+    return model
+           
+
+def get_lstm_model(embedding_layer):
+    model = Sequential()
+    model.add(embedding_layer)
+    model.add(LSTM(32,return_sequences=True))
+    model.add(Dropout(0.2))
+    model.add(Flatten())
+    model.add(Dense(32, activation='relu'))
+    model.add(Dense(1,activation='sigmoid'))
+    return model
+           
+
+def get_transformer():
+    num_heads = 2  # Number of attention heads
+    ff_dim = 32  # Hidden layer size in feed forward network inside transformer
+    maxlen = 200  # Only consider the first 200 words of each sample
+    embed_dim = 100
+
+    inputs = layers.Input(shape=(maxlen,))
+    embedding_layer = TokenAndPositionEmbedding(maxlen, embedding_matrix)
+    x = embedding_layer(inputs)
+    transformer_block = TransformerBlock(embed_dim, num_heads, ff_dim)
+    x = transformer_block(x)
+    x = layers.GlobalAveragePooling1D()(x)
+    x = layers.Dropout(0.1)(x)
+    x = layers.Dense(20, activation="relu")(x)
+    x = layers.Dropout(0.1)(x)
+    outputs = layers.Dense(1, activation="sigmoid")(x)
+    model = keras.Model(inputs=inputs, outputs=outputs)
+    return model
