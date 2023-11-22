@@ -8,8 +8,8 @@ ImageNet2012 dataset is used in the following file structure:
 │adaptive-model-update/
 ├──data/
 │  ├── cybersecurity
-│  │   ├── cs_source.csv
-│  │   ├── cs_target.csv
+│  │   ├── cybersecurity_source.csv
+│  │   ├── cybersecurity_target.csv
 │  ├── disaster
 │  │   ├── disaster_source.csv
 │  │   ├── disaster_target.csv
