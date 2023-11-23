@@ -2,7 +2,7 @@
 
 ## Data Preparation
 
-ImageNet2012 dataset is used in the following file structure:
+Datasets are used in the following file structure:
 
 ```
 │adaptive-model-update/
