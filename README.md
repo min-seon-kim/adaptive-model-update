@@ -31,8 +31,6 @@ All code was developed and tested on Nvidia RTX A4000 (48SMs, 16GB) the followin
 - keras==2.6.0
 - numpy==1.19.5
 - pandas==1.1.5
-- scikit-learn==0.24.2
-- scipy==1.5.4
 - tensorflow==2.6.2
 
 ## Implementation
