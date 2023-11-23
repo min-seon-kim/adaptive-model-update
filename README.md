@@ -22,6 +22,19 @@ ImageNet2012 dataset is used in the following file structure:
 - `disaster_source.csv`: You can download it from: [here](https://www.kaggle.com/competitions/nlp-getting-started/data)
 - `hotel_review.csv`: You can download it from: [here](https://www.yelp.com/dataset)
 
+## Setups
+
+All code was developed and tested on Nvidia RTX A4000 (48SMs, 16GB) the following environment.
+- Ubuntu 18.04
+- python==3.6.9
+- gensim==3.8.3
+- keras==2.6.0
+- numpy==1.19.5
+- pandas==1.1.5
+- scikit-learn==0.24.2
+- scipy==1.5.4
+- tensorflow==2.6.2
+
 ## Implementation
 
 To pre-train the model, run the following script using command line:
@@ -35,4 +48,6 @@ To adapt the model online, run the following script using command line:
 ```shell
 sh run_update_online.sh
 ```
+
+
 
