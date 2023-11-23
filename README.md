@@ -52,7 +52,7 @@ sh run_update_online.sh
 The following options can be passed to `main.py`
 - `-dataset`: Name of the dataset. (Supported names are cybersecurity, disaster, review)
 - `-model`: Neural architecture of the _OnlineAdaptor_. (Supported models are CNN, LSTM, Transformer)
-- `-adjust_weight`: Relative importance between learning efficiency and accuracy. Default is `0.5`
+- `-adjust_weight`: Relative importance between learning efficiency and accuracy. Default is 0.5.
 - `-epochs`: Epochs for training model. Deault is 20.
 - `-event_size`: Size of streaming batches.
 - `-batch_size`: Size of batch to train the model.
