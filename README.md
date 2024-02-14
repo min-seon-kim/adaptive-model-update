@@ -20,6 +20,7 @@ Datasets are used in the following file structure:
 - `cs_source.csv`: You can download it from: [here](https://github.com/behzadanksu/cybertweets)
 - `cs_target.csv`: You can download it from: [here](https://github.com/ndionysus/multitask-cyberthreat-detection)
 - `disaster_source.csv`: You can download it from: [here](https://www.kaggle.com/competitions/nlp-getting-started/data)
+- `disaster_target.csv`: Please refer to emergency.csv file.
 - `hotel_review.csv`: You can download it from: [here](https://www.yelp.com/dataset)
 
 ## Setups
