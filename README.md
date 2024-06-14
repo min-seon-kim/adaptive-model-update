@@ -1,4 +1,4 @@
-# Adaptive Online Learning for Streaming Text Classification under Distribution Shifts
+# OL4TeX: Adaptive Online Learning for Text Classification under Distribution Shifts
 
 ## Data Preparation
 
