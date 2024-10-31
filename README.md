@@ -23,6 +23,9 @@ Datasets are used in the following file structure:
 - `disaster_target.csv`: Please refer to emergency.csv file.
 - `hotel_review.csv`: You can download it from: [here](https://www.yelp.com/dataset)
 
+> **Note**  
+> We reproduced the disaster dataset used in \cite{huang2021similarity}, which is not publicly available, by exactly following the steps introduced in the paper. Specifically, based on the Emergency Classification and Coding (GB/T 35561–2017) issued by the Chinese government, we identified 28 subtypes of emergencies (e.g., Flood, Fire accident, Plague, and Terrorist attack) and grouped them into four main categories: 1) natural disasters, 2) accidents, 3) public health events, and 4) social security events. The subtypes were then used as seed words to filter and collect tweets from January 24 to February 7, 2023. Tweets collected with seed words in natural disasters were labeled as positive, while tweets collected by the remaining three categories were considered negative.
+
 ## Setups
 
 All code was developed and tested on Nvidia RTX A4000 (48SMs, 16GB) the following environment.
